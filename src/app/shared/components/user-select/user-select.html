@@ -1,0 +1,70 @@
+<div class="user-select-container">
+  <div class="select-trigger" (click)="toggleDropdown()" [class.open]="isOpen()">
+    @if (selectedUser()) {
+      <div class="selected-user">
+        <div class="user-avatar">
+          {{ getInitial(selectedUser()!.name) }}
+        </div>
+        <div class="user-info">
+          <span class="user-name">{{ selectedUser()!.name }}</span>
+          <span class="user-email">{{ selectedUser()!.email }}</span>
+        </div>
+      </div>
+    } @else {
+      <span class="placeholder">בחר משתמש...</span>
+    }
+    <svg class="dropdown-icon" [class.rotate]="isOpen()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+
+  @if (isOpen()) {
+    <div class="dropdown-panel">
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          placeholder="חפש משתמש..."
+          class="search-input"
+          (click)="$event.stopPropagation()">
+      </div>
+
+      <div class="users-list">
+        <div class="user-option" (click)="selectUser(null); $event.stopPropagation()">
+          <div class="user-avatar empty">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </div>
+          <span class="user-name">ללא שיוך</span>
+        </div>
+
+        @for (user of filteredUsers(); track user.id) {
+          <div class="user-option" (click)="selectUser(user.id); $event.stopPropagation()" [class.selected]="isSelected(user.id)">
+            <div class="user-avatar">
+              {{ getEmailInitial(user.email) }}
+            </div>
+            <div class="user-info">
+              <span class="user-name">{{ user.name }}</span>
+              <span class="user-email">{{ user.email }}</span>
+            </div>
+            @if (isSelected(user.id)) {
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            }
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <p>לא נמצאו משתמשים</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

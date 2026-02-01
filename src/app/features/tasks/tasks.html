@@ -1,0 +1,445 @@
+<div class="task-board-container">
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+        </svg>
+      </div>
+      <div>
+        <h1>{{ projectName() ? 'משימות של פרויקט ' + projectName() : 'לוח משימות' }}</h1>
+        <p class="subtitle">נהל את המשימות שלך בצורה יעילה</p>
+      </div>
+    </div>
+    <button class="btn btn-accent" (click)="openAddTaskModal('Backlog')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      הוסף משימה
+    </button>
+  </header>
+
+  <div class="board-columns">
+    
+    <section class="column">
+      <div class="column-header">
+        <div class="column-icon backlog-color">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <h2>Backlog</h2>
+        <span class="task-count">{{ backlogTasks().length }}</span>
+      </div>
+      <div class="task-list" cdkDropList [cdkDropListData]="backlogTasks()" (cdkDropListDropped)="drop($event, 'Backlog')" cdkDropListConnectedTo="[inProgressList, doneList]">
+        @for (task of backlogTasks(); track task.id) {
+          <div class="task-card card" cdkDrag [cdkDragData]="task">
+            <div class="task-header">
+              <h3>{{ task.title }}</h3>
+              <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+            </div>
+            <p class="task-description">{{ task.description }}</p>
+            <div class="task-meta">
+              @if (task.assigned_to) {
+                <span class="meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  {{ getUserName(task.assigned_to) }}
+                </span>
+              }
+              @if (task.due_date) {
+                <span class="meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ task.due_date }}
+                </span>
+              }
+            </div>
+            <div class="task-actions">
+              <button class="btn-icon btn-primary" (click)="updateStatus(task, 'In Progress')" title="התחל עבודה">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+              </button>
+              <button class="btn-icon" (click)="onEditTask(task)" title="ערוך">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-accent" (click)="openTaskComments(task); $event.stopPropagation()" title="תגובות">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-danger" (click)="onDeleteTask(task.id)" title="מחק">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+        <button class="add-task-btn" (click)="openAddTaskModal('Backlog')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          הוסף משימה
+        </button>
+      </div>
+    </section>
+
+    <section class="column">
+      <div class="column-header">
+        <div class="column-icon progress-color">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <h2>In Progress</h2>
+        <span class="task-count">{{ inProgressTasks().length }}</span>
+      </div>
+      <div class="task-list" cdkDropList #inProgressList="cdkDropList" [cdkDropListData]="inProgressTasks()" (cdkDropListDropped)="drop($event, 'In Progress')" cdkDropListConnectedTo="[doneList]">
+        @for (task of inProgressTasks(); track task.id) {
+          <div class="task-card card" cdkDrag [cdkDragData]="task">
+            <div class="task-header">
+              <h3>{{ task.title }}</h3>
+              <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+            </div>
+            <p class="task-description">{{ task.description }}</p>
+            <div class="task-meta">
+              @if (task.assigned_to) {
+                <span class="meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  {{ getUserName(task.assigned_to) }}
+                </span>
+              }
+              @if (task.due_date) {
+                <span class="meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ task.due_date }}
+                </span>
+              }
+            </div>
+            <div class="task-actions">
+              <button class="btn-icon btn-primary" (click)="updateStatus(task, 'Done')" title="סיום">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </button>
+              <button class="btn-icon" (click)="updateStatus(task, 'Backlog')" title="החזר ל-Backlog">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+              </button>
+              <button class="btn-icon" (click)="onEditTask(task)" title="ערוך">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-accent" (click)="openTaskComments(task); $event.stopPropagation()" title="תגובות">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+        <button class="add-task-btn" (click)="openAddTaskModal('In Progress')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          הוסף משימה
+        </button>
+      </div>
+    </section>
+
+    <section class="column">
+      <div class="column-header">
+        <div class="column-icon done-color">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h2>Done</h2>
+        <span class="task-count">{{ doneTasks().length }}</span>
+      </div>
+      <div class="task-list" cdkDropList #doneList="cdkDropList" [cdkDropListData]="doneTasks()" (cdkDropListDropped)="drop($event, 'Done')">
+        @for (task of doneTasks(); track task.id) {
+          <div class="task-card card done" cdkDrag [cdkDragData]="task">
+            <div class="task-header">
+              <h3>{{ task.title }}</h3>
+              <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+            </div>
+            <p class="task-description">{{ task.description }}</p>
+            <div class="task-meta">
+              @if (task.assigned_to) {
+                <span class="meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  {{ getUserName(task.assigned_to) }}
+                </span>
+              }
+              @if (task.due_date) {
+                <span class="meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ task.due_date }}
+                </span>
+              }
+            </div>
+            <div class="task-actions">
+              <button class="btn-icon" (click)="updateStatus(task, 'In Progress')" title="פתח מחדש">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10"></polyline>
+                  <path d="M3.51 15a9 9 0 102.13-9.36L1 10"></path>
+                </svg>
+              </button>
+              <button class="btn-icon" (click)="onEditTask(task)" title="ערוך">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-accent" (click)="openTaskComments(task); $event.stopPropagation()" title="תגובות">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-danger" (click)="onDeleteTask(task.id)" title="מחק">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+        <button class="add-task-btn" (click)="openAddTaskModal('Done')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          הוסף משימה
+        </button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+@if (selectedTask()) {
+  <div class="modal-overlay" (click)="closeTaskComments()">
+    <div class="modal comments-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2>{{ selectedTask()?.title }}</h2>
+          <p class="modal-subtitle">תגובות ודיונים</p>
+        </div>
+        <button class="btn-icon close-btn" (click)="closeTaskComments()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <app-task-comments [taskId]="selectedTask()!.id"></app-task-comments>
+    </div>
+  </div>
+}
+
+<!-- Task Create/Edit Modal -->
+@if (isModalOpen()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal task-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode() ? 'עריכת משימה' : 'משימה חדשה' }}</h2>
+        <button class="btn-icon close-btn" (click)="closeModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="label" for="taskTitle">כותרת המשימה *</label>
+          <input 
+            id="taskTitle"
+            type="text" 
+            class="input-field"
+            [(ngModel)]="taskTitle"
+            placeholder="הכנס כותרת למשימה">
+        </div>
+        
+        <div class="form-group">
+          <label class="label" for="taskDescription">תיאור</label>
+          <textarea 
+            id="taskDescription"
+            class="input-field textarea-field"
+            [(ngModel)]="taskDescription"
+            placeholder="הכנס תיאור משימה"
+            rows="4"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="label" for="taskPriority">עדיפות</label>
+            <select 
+              id="taskPriority"
+              class="input-field"
+              [(ngModel)]="taskPriority">
+              <option value="low">נמוכה</option>
+              <option value="medium">בינונית</option>
+              <option value="high">גבוהה</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="label" for="taskStatus">סטטוס</label>
+            <select 
+              id="taskStatus"
+              class="input-field"
+              [(ngModel)]="modalStatus">
+              <option value="Backlog">Backlog</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="label">שיוך למשתמש</label>
+            @if (taskAssignedTo() && getAssignedUser()) {
+              <div class="selected-user-display">
+                <div class="user-avatar">
+                  {{ getAssignedUser()!.email.charAt(0).toUpperCase() }}
+                </div>
+                <div class="user-info">
+                  <span class="user-name">{{ getAssignedUser()!.name }}</span>
+                  <span class="user-email">{{ getAssignedUser()!.email }}</span>
+                </div>
+              </div>
+            } @else {
+              <app-user-select 
+                [users]="teamMembers()"
+                [selectedUserId]="taskAssignedTo()"
+                (userSelected)="taskAssignedTo.set($event)">
+              </app-user-select>
+            }
+          </div>
+          
+          <div class="form-group">
+            <label class="label" for="taskDueDate">תאריך יעד</label>
+            <input 
+              id="taskDueDate"
+              type="date" 
+              class="input-field"
+              [(ngModel)]="taskDueDate">
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeModal()">ביטול</button>
+        <button class="btn btn-primary" (click)="submitTask()">
+          {{ isEditMode() ? 'עדכן' : 'צור משימה' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (isDeleteConfirmOpen()) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal confirm-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>מחיקת משימה</h2>
+      </div>
+      
+      <div class="modal-body">
+        <p>האם אתה בטוח שברצונך למחוק משימה זו?</p>
+        <p class="warning-text">פעולה זו אינה ניתנת לביטול.</p>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="cancelDelete()">ביטול</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">מחק</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Notification Toast -->
+@if (notification()) {
+  <div class="notification notification-{{ notification()!.type }}">
+    <div class="notification-icon">
+      @if (notification()!.type === 'success') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      }
+      @if (notification()!.type === 'error') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      }
+      @if (notification()!.type === 'info') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      }
+      @if (notification()!.type === 'warning') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      }
+    </div>
+    <span>{{ notification()!.message }}</span>
+    <button class="notification-close" (click)="notification.set(null)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+}

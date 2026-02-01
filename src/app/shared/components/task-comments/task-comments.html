@@ -1,0 +1,49 @@
+<div class="comments-container">
+  <div class="comments-header">
+    <h3>תגובות</h3>
+  </div>
+  
+  <div class="comments-list">
+    @for (comment of comments(); track comment.id) {
+      <div class="comment-item">
+        <div class="comment-avatar">
+          {{ getEmailInitial(comment.user_id) }}
+        </div>
+        <div class="comment-content">
+          <div class="comment-header">
+            <span class="comment-author">{{ getUserName(comment.user_id) }}</span>
+            <span class="comment-date">{{ comment.created_at | date:'short' }}</span>
+          </div>
+          <p class="comment-body">{{ comment.body }}</p>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+          </svg>
+        </div>
+        <p>אין תגובות עדיין</p>
+      </div>
+    }
+  </div>
+  
+  <div class="comment-form">
+    <input 
+      class="comment-input"
+      [(ngModel)]="newCommentBody" 
+      placeholder="כתוב תגובה מפורטת..."
+      (keyup.enter)="onAddComment()">
+    <button 
+      class="submit-btn"
+      (click)="onAddComment()" 
+      [disabled]="!newCommentBody().trim()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+      שלח
+    </button>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+<header class="app-header">
+  <div class="header-container">
+    <div class="header-left">
+      <div class="logo" routerLink="/teams">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+        </svg>
+        <span class="logo-text">TaskTeam</span>
+      </div>
+      
+      <nav class="nav-links">
+        <a routerLink="/teams" routerLinkActive="active" class="nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 010 7.75"></path>
+          </svg>
+          ניהול צוותים
+        </a>
+        @if (authService.currentUser()) {
+          <a (click)="goToMyTasks()" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+            המשימות שלך
+          </a>
+        }
+      </nav>
+    </div>
+
+    @if (isSearchOpen) {
+      <div class="search-inline">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+          placeholder="חפש משימות, פרויקטים או צוותים..."
+          class="search-input"
+          autofocus>
+        
+        @if (searchResults().length > 0) {
+          <div class="search-results">
+            @for (result of searchResults(); track result.data.id) {
+              <div class="search-result-item" (click)="navigateToResult(result)">
+                <div class="result-icon">
+                  @if (result.type === 'task') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 11l3 3L22 4"></path>
+                      <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                    </svg>
+                  } @else if (result.type === 'project') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"></path>
+                    </svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 010 7.75"></path>
+                    </svg>
+                  }
+                </div>
+                <div class="result-content">
+                  <div class="result-title">{{ result.data.title || result.data.name }}</div>
+                  <div class="result-type">{{ getResultTypeLabel(result.type) }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (searchQuery.trim() && searchResults().length === 0) {
+          <div class="search-results">
+            <div class="no-results">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <p>לא נמצאו תוצאות</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="header-right">
+      <button class="icon-btn search-btn" (click)="toggleSearch()" [class.active]="isSearchOpen">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </button>
+
+      @if (authService.currentUser()) {
+        <div class="user-info">
+          <div class="user-avatar">
+            {{ authService.currentUser()!.name.charAt(0).toUpperCase() }}
+          </div>
+          <span class="user-name">{{ authService.currentUser()!.name }}</span>
+        </div>
+      }
+
+      @if (authService.currentUser()) {
+        <button class="btn btn-outline logout-btn" (click)="onLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          התנתק
+        </button>
+      }
+    </div>
+  </div>
+
+</header>

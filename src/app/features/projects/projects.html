@@ -1,0 +1,78 @@
+<div class="projects-container">
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"></path>
+        </svg>
+      </div>
+      <div>
+        <h1>{{ teamName() ? 'פרויקטים של צוות ' + teamName() : 'פרויקטים' }}</h1>
+        <p class="subtitle">בחר פרויקט כדי לצפות במשימות שלו</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="create-section card">
+    <h3 class="section-title">צור פרויקט חדש</h3>
+    <div class="create-form">
+      <div class="form-group">
+        <label class="label">שם פרויקט</label>
+        <input 
+          class="input-field" 
+          [(ngModel)]="newProjectName" 
+          placeholder="הזן שם לפרויקט החדש...">
+      </div>
+      <div class="form-group">
+        <label class="label">תיאור</label>
+        <input 
+          class="input-field" 
+          [(ngModel)]="newProjectDescription" 
+          placeholder="הזן תיאור מפורט של הפרויקט...">
+      </div>
+      <button 
+        class="btn btn-primary"
+        (click)='onCreateProject()'
+        [disabled]="!newProjectName().trim()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        צור פרויקט
+      </button>
+    </div>
+  </section>
+
+  <div class="projects-grid">
+    @for (project of teamProjects(); track $index) {
+      <div class="project-card card ripple" [routerLink]="['/tasks', project.id]">
+        <div class="project-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"></path>
+          </svg>
+        </div>
+        <h3>{{ project.name }}</h3>
+        <p class="project-description">{{ project.description || 'אין תיאור לפרויקט' }}</p>
+        <div class="card-footer">
+          <span class="view-link">
+            צפה במשימות
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state card">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"></path>
+          </svg>
+        </div>
+        <h3>אין פרויקטים עדיין</h3>
+        <p>צור את הפרויקט הראשון שלך כדי להתחיל</p>
+      </div>
+    }
+  </div>
+</div>

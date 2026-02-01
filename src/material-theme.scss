@@ -1,0 +1,100 @@
+
+@use '@angular/material' as mat;
+
+// Define custom color palettes using Material 3 tokens
+$light-theme: mat.define-theme((
+  color: (
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+    theme-type: light,
+  ),
+  typography: (
+    brand-family: 'Heebo, Roboto, sans-serif',
+    plain-family: 'Heebo, Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+$dark-theme: mat.define-theme((
+  color: (
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+    theme-type: dark,
+  ),
+  typography: (
+    brand-family: 'Heebo, Roboto, sans-serif',
+    plain-family: 'Heebo, Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+html {
+  height: 100%;
+  @include mat.all-component-themes($light-theme);
+  
+  body.dark-theme & {
+    @include mat.all-component-colors($dark-theme);
+  }
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  font-family: 'Heebo', Roboto, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  
+  // Light theme colors
+  --primary: #4a90e2;
+  --primary-light: #6ba3e8;
+  --primary-dark: #3d68aa;
+  --accent: #50e3c2;
+  --accent-light: #6de8cd;
+  --accent-dark: #2a826d;
+  --success: #50e3c2;
+  --warning: #f5a623;
+  --error: #e24a4a;
+  --info: #4a90e2;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f9fc;
+  --bg-tertiary: #ecf0f5;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-tertiary: #95a5a6;
+  --border-color: #e1e8ed;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+  
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  
+  // Dark theme colors
+  &.dark-theme {
+    --primary: #6ba3e8;
+    --primary-light: #88b5ed;
+    --primary-dark: #4a90e2;
+    --accent: #6de8cd;
+    --accent-light: #88edd7;
+    --accent-dark: #50e3c2;
+    --success: #6de8cd;
+    --warning: #f5a623;
+    --error: #e86b6b;
+    --info: #6ba3e8;
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-tertiary: #0f1729;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-tertiary: #808080;
+    --border-color: #2a3f5f;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-hover: rgba(0, 0, 0, 0.5);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}

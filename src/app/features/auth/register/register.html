@@ -1,0 +1,72 @@
+<div class="register-container">
+  <div class="register-card card">
+    <div class="register-header">
+      <div class="logo-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <line x1="20" y1="8" x2="20" y2="14"></line>
+          <line x1="23" y1="11" x2="17" y2="11"></line>
+        </svg>
+      </div>
+      <h2>יצירת חשבון חדש</h2>
+      <p class="subtitle">הצטרף אלינו ותתחיל לנהל משימות</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+      <div class="form-group">
+        <label class="label">שם מלא</label>
+        <input type="text" formControlName="name" placeholder="הזן שם מלא..." class="input-field">
+        @if ((registerForm.get('name')?.touched || registerForm.get('name')?.dirty) && registerForm.get('name')?.errors?.['required']) {
+          <small class="error-text">שם מלא הוא שדה חובה</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="label">אימייל</label>
+        <input type="email" formControlName="email" placeholder="example@mail.com" class="input-field">
+        @if ((registerForm.get('email')?.touched || registerForm.get('email')?.dirty) && registerForm.get('email')?.errors?.['required']) {
+          <small class="error-text">אימייל הוא שדה חובה</small>
+        }
+        @if ((registerForm.get('email')?.touched || registerForm.get('email')?.dirty) && registerForm.get('email')?.errors?.['email']) {
+          <small class="error-text">כתובת האימייל אינה תקינה</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="label">סיסמה</label>
+        <input type="password" formControlName="password" placeholder="לפחות 6 תווים" class="input-field">
+        @if ((registerForm.get('password')?.touched || registerForm.get('password')?.dirty) && registerForm.get('password')?.errors?.['required']) {
+          <small class="error-text">סיסמה היא שדה חובה</small>
+        }
+        @if ((registerForm.get('password')?.touched || registerForm.get('password')?.dirty) && registerForm.get('password')?.errors?.['minlength']) {
+          <small class="error-text">הסיסמה חייבת להכיל לפחות 6 תווים</small>
+        }
+      </div>
+
+      @if (authService.authError()) {
+        <div class="server-error">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          {{ authService.authError() }}
+        </div>
+      }
+
+      <button type="submit" class="btn btn-primary submit-btn" [disabled]="registerForm.invalid || authService.isLoading()">
+        @if (authService.isLoading()) {
+          <span class="loading"></span>
+          <span>טוען...</span>
+        } @else {
+          <span>הרשמה</span>
+        }
+      </button>
+    </form>
+
+    <div class="auth-links">
+      <p>כבר יש לך חשבון? <a routerLink="/login" class="link">התחבר כאן</a></p>
+    </div>
+  </div>
+</div>

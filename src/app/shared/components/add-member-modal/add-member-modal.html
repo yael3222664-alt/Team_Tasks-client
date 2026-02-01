@@ -1,0 +1,61 @@
+@if (isOpen()) {
+  <div class="modal-overlay" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>הוסף חבר לצוות</h2>
+        <button class="close-btn" (click)="close()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="onSubmit()" class="modal-body">
+        <div class="form-group">
+          <label>משתמש נבחר:</label>
+          @if (selectedUser()) {
+            <div class="selected-user-display">
+              <div class="user-avatar">
+                {{ selectedUser()!.email.charAt(0).toUpperCase() }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ selectedUser()!.name }}</span>
+                <span class="user-email">{{ selectedUser()!.email }}</span>
+              </div>
+              <button type="button" class="btn-icon" (click)="selectedUserId.set(null)" title="שנה משתמש">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          } @else {
+            <app-user-select 
+              [users]="availableUsers()"
+              [selectedUserId]="selectedUserId()"
+              (userSelected)="onUserSelected($event)">
+            </app-user-select>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="role-select">תפקיד:</label>
+          <select 
+            id="role-select" 
+            class="form-control"
+            [value]="selectedRole()"
+            (change)="selectedRole.set($any($event.target).value)">
+            <option value="member">חבר</option>
+            <option value="owner">בעלים</option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="close()">ביטול</button>
+          <button type="submit" class="btn btn-primary">הוסף חבר</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
